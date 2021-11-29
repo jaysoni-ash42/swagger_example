@@ -1,7 +1,7 @@
 swagger: "2.0"
 info:
   version: "0.0.1"
-  title: Hello World App
+  title: TODO APP
 # during dev, should point to your local machine
 host: localhost:10010
 # basePath prefixes all resource paths 
@@ -18,43 +18,146 @@ consumes:
 produces:
   - application/json
 paths:
-  /hello:
-    # binds a127 app logic to a route
-    x-swagger-router-controller: hello_world
-    get:
-      description: Returns 'Hello' to the caller
-      # used as the method name of the controller
-      operationId: hello
-      parameters:
-        - name: name
-          in: query
-          description: The name of the person to whom to say hello
-          required: false
-          type: string
+  /:
+    get: 
+      description: "This endpoint returns all todos"
+      operationId: "GetAllTodos"
+      parameters: []
       responses:
-        "200":
-          description: Success
+        200:
+          description: "An array of Todos"
           schema:
-            # a pointer to a definition
-            $ref: "#/definitions/HelloWorldResponse"
-        # responses may fall through to errors
+            type: "array"
+            items: 
+              $ref: "#/definitions/Todo"
         default:
-          description: Error
+            description: Error
+            schema:
+              $ref: "#/definitions/ErrorResponse"
+      x-swagger-router-controller: "GetAllTodos"
+      
+    post:
+      description: "this endpoint add a new todo"
+      operationId: "AddTodo"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "todo"
+        description: "the todo to be added"
+        required: true
+        schema: 
+          $ref: "#/definitions/Todo"
+      responses:
+        200:
+          description: "Todo successfully added"
           schema:
-            $ref: "#/definitions/ErrorResponse"
+            $ref: "#/definitions/Todo"
+      x-swagger-router-controller: "AddTodo"
+      
+  /todo/{id}:
+              get:
+                description: "Get todo by id"
+                operationId: "GetTodoById"
+                parameters:
+                - name: "id"
+                  in: "path"
+                  required: true
+                  type: "integer"
+                  format: "int64"
+                responses:
+                  200:
+                    description: "Get Todo by Id"
+                    schema:
+                      $ref: "#/definitions/Todo"
+                  default:
+                    description: Error
+                    schema:
+                      $ref: "#/definitions/ErrorResponse"
+                x-swagger-router-controller: "GetTodoById"
+              
+              delete:
+                description: "Delete Todo"
+                operationId: "DeleteTodoById"
+                parameters:
+                - name: "id"
+                  in: "path"
+                  required: true
+                  type: "integer"
+                  format: "int64"
+                  description: "Delete a todo by id"
+                responses:
+                  200:
+                    description: "Delete Todo"
+                    schema:
+                      $ref: "#/definitions/Response"
+                  default:
+                    description: Error
+                    schema:
+                      $ref: "#/definitions/ErrorResponse"
+                x-swagger-router-controller: "DeleteTodoById"
+              
+              put:
+                description: "Update Todo" 
+                operationId: "UpdateTodoById"
+                parameters:
+                - name: "id"
+                  in: "path"
+                  required: true
+                  type: "integer"
+                  format: "int64"
+                  description: "update a todo by id"
+                - name: "updated Todo"
+                  in: "body"
+                  description: "body of the todo"
+                  required: true
+                  schema:
+                    $ref: "#/definitions/Todo"
+                responses:
+                  200:
+                    description: "The Updated TODO"
+                    schema:
+                      $ref: "#/definitions/Todo"
+                x-swagger-router-controller: "UpdateTodoById"
+              
+              
+        
   /swagger:
     x-swagger-pipe: swagger_raw
 # complex objects have schema definitions
 definitions:
-  HelloWorldResponse:
-    required:
-      - message
+  Todo:
+    type: "object"
     properties:
-      message:
-        type: string
+      todo_id:
+        type: "integer"
+        description: "todo id"
+      todo:
+        type: "string"
+        description: "description of todo"
+      dateCreated:
+        type: "string"
+        format: "date-time"
+        description: "todo created date"
+      author:
+        type: "string"
+        description: "owner or created by"
+      dueDate:
+        type: "string"
+        format: "date-time"
+        description: "date within it should be finished"
   ErrorResponse:
-    required:
-      - message
-    properties:
+    type: "object"
+    properties: 
       message:
-        type: string
+        type: "string"
+        description: "error message"
+  Response:
+    type: "object"
+    properties: 
+      message:
+        type: "string"
+        description: "error message"
+        
+      
+      
